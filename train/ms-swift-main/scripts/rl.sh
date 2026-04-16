@@ -1,0 +1,53 @@
+MAX_PIXELS=230400 \
+NPROC_PER_NODE=6 \
+swift rlhf \
+    --rlhf_type grpo \
+    --model_type qwen2_5_vl \
+    --model /root/bayes-gpfs-c9f955b46c074f048c960ec71693fa58/niechang/Qwen2.5-VL/qwen-vl-finetune/output_1019/checkpoint-1219 \
+    --train_type full \
+    --dataset /root/bayes-gpfs-c9f955b46c074f048c960ec71693fa58/niechang/PersonaVLM/data/training/rl/rl.jsonl \
+    --dataset_shuffle true \
+    --use_vllm true \
+    --vllm_mode colocate \
+    --vllm_gpu_memory_utilization 0.4 \
+    --vllm_tensor_parallel_size 2 \
+    --torch_dtype bfloat16 \
+    --num_train_epochs 1 \
+    --per_device_train_batch_size 2 \
+    --per_device_eval_batch_size 1 \
+    --vllm_max_model_len 16384 \
+    --learning_rate 2e-6 \
+    --max_pixels 230400 \
+    --lr_scheduler_type cosine_with_min_lr \
+    --lr_scheduler_kwargs '{"min_lr_rate": 0.1, "num_cycles": 0.5}' \
+    --save_total_limit 5 \
+    --save_steps 200 \
+    --logging_steps 5 \
+    --output_dir output_1019_qwen-vl-finetune \
+    --gradient_accumulation_steps 6 \
+    --warmup_ratio 0.05 \
+    --dataloader_num_workers 4 \
+    --max_completion_length 1024 \
+    --external_plugins examples/train/grpo/plugin/plugin.py \
+    --reward_funcs external_our_reward \
+    --num_generations 6 \
+    --sleep_level 1 \
+    --temperature 1.0 \
+    --beta 0.01 \
+    --top_p 0.9 \
+    --top_k 50 \
+    --repetition_penalty 1.05 \
+    --num_iterations 1 \
+    --overlong_filter true \
+    --offload_optimizer true \
+    --offload_model true \
+    --gc_collect_after_offload true \
+    --attn_impl flash_attn \
+    --vllm_enforce_eager true \
+    --multi_turn_scheduler MultiTurnSchedulerOurs \
+    --max_turns 4 \
+    --log_completions true \
+    --deepspeed zero3 \
+    --max_length 16384
+
+# CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 sh scripts/rl.sh
