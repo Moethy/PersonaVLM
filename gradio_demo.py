@@ -10,8 +10,27 @@ import matplotlib.patches as patches
 import gradio as gr
 from PIL import Image
 
+import sounddevice as sd
+from scipy.io.wavfile import write
+from faster_whisper import WhisperModel
+
+import subprocess
+import wave
+import pyaudio
+
 from PersonaVLM import PersonaVLMAgent
 from inference import UserConfig
+
+STT_DURATION = 5
+STT_SAMPLE_RATE = 48000
+STT_MIC_DEVICE = 2
+STT_AUDIO_FILE = "stt_input.wav"
+
+PIPER_EXE = r"piper\piper.exe"
+PIPER_VOICE_MODEL = r"piper\voices\nl\nl_NL\ronnie\medium\nl_NL-ronnie-medium.onnx"
+PIPER_OUTPUT_WAV = "piper_response.wav"
+
+stt_model = WhisperModel("base", device="cpu", compute_type="int8")
 
 
 class MockAgent:
@@ -176,6 +195,57 @@ def get_image_base64_src(image_file_path):
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
     return f"data:image/png;base64,{encoded_string}"
 
+# STT Functie
+def record_and_transcribe():
+    audio = sd.rec(
+        int(STT_DURATION * STT_SAMPLE_RATE),
+        samplerate=STT_SAMPLE_RATE,
+        channels=1,
+        dtype="int16",
+        device=STT_MIC_DEVICE
+    )
+    sd.wait()
+    write(STT_AUDIO_FILE, STT_SAMPLE_RATE, audio)
+
+    segments, info = stt_model.transcribe(STT_AUDIO_FILE, language="nl")
+    text = " ".join(segment.text.strip() for segment in segments)
+
+    return text
+
+# Piper TTS
+def speak_with_piper(text):
+    if not text or not text.strip():
+        return
+
+    subprocess.run(
+        [PIPER_EXE, "--model", PIPER_VOICE_MODEL, "--output_file", PIPER_OUTPUT_WAV],
+        input=text,
+        text=True,
+        check=True
+    )
+
+    wf = wave.open(PIPER_OUTPUT_WAV, "rb")
+    pa = pyaudio.PyAudio()
+
+    stream = pa.open(
+        format=pa.get_format_from_width(wf.getsampwidth()),
+        channels=wf.getnchannels(),
+        rate=wf.getframerate(),
+        output=True
+    )
+
+    data = wf.readframes(1024)
+    while data:
+        stream.write(data)
+        data = wf.readframes(1024)
+
+    stream.stop_stream()
+    stream.close()
+    pa.terminate()
+    wf.close()
+
+    return text
+
 def process_interaction(
     initial_profile: str, 
     current_time: str, 
@@ -228,6 +298,9 @@ def process_interaction(
     response, memory_output, reasoning_output, personality_output = agent.send_message(
         current_time, user_query, image_path, personality_input=manual_personality
     )
+
+    speak_with_piper(response)
+
     personality_image_path = os.path.join(agent.config.DATA_STORAGE_PATH, "personality_evolution.png")
     if not os.path.exists(personality_image_path):
         personality_image_path = None
@@ -270,10 +343,16 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
                 lines=3,
                 placeholder="Hello, please enter your question here.",
             )
+            speech_to_text_btn = gr.Button("Spreek 5 seconden in")
+
+            # In comments want niet nodig
             image_upload_input = gr.Image(
                 label="Image Upload (Optional)",
-                type="pil" # 使用 PIL Image 对象，Gradio会自动处理临时文件
+                type="pil", # 使用 PIL Image 对象，Gradio会自动处理临时文件
+                visible=False
             )
+
+
             with gr.Row():
                 initial_profile_input = gr.Textbox(
                         label="Initial User Profile",
@@ -302,6 +381,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
                 lines=5,
                 value=default_personality_str,
                 interactive=True,
+                visible=False
             )
 
         with gr.Column(scale=2):
@@ -329,12 +409,19 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
                 label="Alignment",
                 lines=3,
                 interactive=False, 
-                scale=1
+                scale=1,
+                visible=False
             )
             personality_evolution_output = gr.Image(
                 label="Personality Evolution",
                 visible=False,
             )
+
+    speech_to_text_btn.click(
+    fn=record_and_transcribe,
+    inputs=[],
+    outputs=query_input
+)
 
     submit_btn.click(
         fn=process_interaction,

@@ -220,3 +220,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+piper/
+*.wav
+*.mp3
+output/
+requirements_local.txt
+requirements_windows.txt
+gradio_demo_backup.py
