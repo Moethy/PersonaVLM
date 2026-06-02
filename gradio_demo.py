@@ -3,6 +3,9 @@ import json
 import os
 import base64
 from pathlib import Path
+import re
+
+from schedule_utils import load_medication_schedule
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,12 +25,16 @@ from PersonaVLM import PersonaVLMAgent
 from inference import UserConfig
 
 STT_DURATION = 5
-STT_SAMPLE_RATE = 48000
-STT_MIC_DEVICE = 2
+STT_MIC_DEVICE = None
 STT_AUDIO_FILE = "stt_input.wav"
 
-PIPER_EXE = r"piper\piper.exe"
-PIPER_VOICE_MODEL = r"piper\voices\nl\nl_NL\ronnie\medium\nl_NL-ronnie-medium.onnx"
+if os.name == "nt":  # Windows
+    PIPER_EXE = r"piper\piper.exe"
+    PIPER_VOICE_MODEL = r"piper\voices\nl\nl_NL\ronnie\medium\nl_NL-ronnie-medium.onnx"
+else:  # Linux / macOS
+    PIPER_EXE = "piper/piper"
+    PIPER_VOICE_MODEL = "piper/voices/nl/nl_NL/ronnie/medium/nl_NL-ronnie-medium.onnx"
+
 PIPER_OUTPUT_WAV = "piper_response.wav"
 
 stt_model = WhisperModel("base", device="cpu", compute_type="int8")
@@ -197,15 +204,18 @@ def get_image_base64_src(image_file_path):
 
 # STT Functie
 def record_and_transcribe():
+    device_info = sd.query_devices(STT_MIC_DEVICE, "input")
+    sample_rate = int(device_info["default_samplerate"])
+
     audio = sd.rec(
-        int(STT_DURATION * STT_SAMPLE_RATE),
-        samplerate=STT_SAMPLE_RATE,
+        int(STT_DURATION * sample_rate),
+        samplerate=sample_rate,
         channels=1,
         dtype="int16",
         device=STT_MIC_DEVICE
     )
     sd.wait()
-    write(STT_AUDIO_FILE, STT_SAMPLE_RATE, audio)
+    write(STT_AUDIO_FILE, sample_rate, audio)
 
     segments, info = stt_model.transcribe(STT_AUDIO_FILE, language="nl")
     text = " ".join(segment.text.strip() for segment in segments)
@@ -246,11 +256,64 @@ def speak_with_piper(text):
 
     return text
 
+    # Hier laadt ie de prompt instructies in
+def load_prompt_instructions():
+    path = "prompt_instructions/medication_assistant.txt"
+
+    if not os.path.exists(path):
+        print("Prompt instructions file not found.")
+        return ""
+
+    with open(path, "r", encoding="utf-8") as file:
+        content = file.read()
+        print(f"Loaded prompt instructions: {path} ({len(content)} characters)")
+        print("Prompt instructions preview:")
+        print(content[:500])
+        return content
+
+    # Medicatie informatie laden
+def load_medication_context():
+    info_folder = "medication_info"
+    context_parts = []
+
+    if not os.path.exists(info_folder):
+        print("Medication info folder not found.")
+        return ""
+
+    for filename in os.listdir(info_folder):
+        if filename.endswith(".txt"):
+            path = os.path.join(info_folder, filename)
+            with open(path, "r", encoding="utf-8") as file:
+                content = file.read()
+                print(f"Loaded medication file: {filename} ({len(content)} characters)")
+                context_parts.append(f"--- BRONBESTAND: {filename} ---\n{content}")
+
+    medication_context = "\n\n".join(context_parts)
+    print("Medication context preview:")
+    print(medication_context[:500])
+
+    return medication_context
+
+def clean_model_response(text):
+    if not text:
+        return ""
+
+    # Verwijder tekens die niet passen bij normale cijfers of leestekens
+    # Dit haalt onverwachte symbolen weg
+    allowed_pattern = r"[^a-zA-ZÀ-ÿ0-9\s.,!?;:()\-/'\"%€+*=&\n]"
+    text = re.sub(allowed_pattern, "", text)
+
+    # Ruim dubbele spaties op
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
+
+    return text.strip()
+    
 def process_interaction(
-    initial_profile: str, 
-    current_time: str, 
-    user_query: str, 
-    image_input, 
+    initial_profile: str,
+    current_time: str,
+    user_query: str,
+    image_input,
     personality_input: str,
     agent_state: MockAgent
 ):
@@ -295,10 +358,24 @@ def process_interaction(
     else:
         image_path = ''
 
+     # Hier vertellen we wat het model moet doen
+    prompt_instructions = load_prompt_instructions()
+    medication_context = load_medication_context()
+    schedule_context = load_medication_schedule()
+
+    user_query = (
+        f"Medicatie-informatie:\n{medication_context}\n\n"
+        f"Medicatieschema en huidige planning:\n{schedule_context}\n\n"
+        f"Vraag van gebruiker:\n{user_query}\n\n"
+        "Antwoord nu volledig in het Nederlands:"
+    )  
     response, memory_output, reasoning_output, personality_output = agent.send_message(
         current_time, user_query, image_path, personality_input=manual_personality
     )
 
+    
+
+    response = clean_model_response(response)
     speak_with_piper(response)
 
     personality_image_path = os.path.join(agent.config.DATA_STORAGE_PATH, "personality_evolution.png")
@@ -358,14 +435,14 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
                         label="Initial User Profile",
                         info="Set the user's initial profile in this field. Note that altering this information will reset the Agent's dialogue history.",
                         lines=3,
-                        value="name: Bob\ngender:male\npreferences:lovely pet",
+                        value="name: Henk\ngeslacht: man\ntaal: Nederlands\nvoorkeuren: eenvoudige uitleg over medicatie",
                         scale=1
                     )
                 current_time_input = gr.Textbox(
                         label="Timestamp (Optional)",
                         info="Format: YYYY-MM-DD HH:MM. If empty, the current system time will be used.",
                         lines=3,
-                        value="2025-11-01 10:00",
+                        value=None,
                         scale=1
                     )
             default_personality_str = (
@@ -451,5 +528,5 @@ if __name__ == "__main__":
         server_name="0.0.0.0",
         share=True,
         server_port=7861, 
-        auth=(APP_USER, APP_PASSWORD),
+        
     )

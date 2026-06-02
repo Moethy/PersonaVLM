@@ -1,0 +1,12 @@
+{
+  "medications": [
+    {
+      "name": "Paracetamol",
+      "dose": "1 tablet van 500 mg",
+      "times": ["08:00", "14:00", "20:00"],
+      "instructions": "Neem in met water. Houd minimaal 4 uur tussen innames.",
+      "reminder_enabled": true,
+      "taken_today": []
+    }
+  ]
+}
