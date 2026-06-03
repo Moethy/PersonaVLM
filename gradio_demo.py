@@ -24,7 +24,7 @@ import pyaudio
 from PersonaVLM import PersonaVLMAgent
 from inference import UserConfig
 
-STT_DURATION = 5
+STT_DURATION = 10
 STT_MIC_DEVICE = None
 STT_AUDIO_FILE = "stt_input.wav"
 
@@ -420,7 +420,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
                 lines=3,
                 placeholder="Hello, please enter your question here.",
             )
-            speech_to_text_btn = gr.Button("Spreek 5 seconden in")
+            speech_to_text_btn = gr.Button("Spreek in")
 
             # In comments want niet nodig
             image_upload_input = gr.Image(
