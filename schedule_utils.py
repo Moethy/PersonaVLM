@@ -59,3 +59,30 @@ def load_medication_schedule(path="medication_schedule.json"):
     schedule_lines.append(f"Instructie: {next_moment['instructions']}")
 
     return "\n".join(schedule_lines)
+
+
+def get_schedule_table(path="medication_schedule.json"):
+    if not os.path.exists(path):
+        return []
+
+    with open(path, "r", encoding="utf-8") as file:
+        schedule = json.load(file)
+
+    rows = []
+
+    for medication in schedule.get("medications", []):
+        name = medication.get("name", "")
+        dose = medication.get("dose", "")
+        times = ", ".join(medication.get("times", []))
+        instructions = medication.get("instructions", "")
+        reminder_enabled = "Ja" if medication.get("reminder_enabled", False) else "Nee"
+
+        rows.append([
+            name,
+            dose,
+            times,
+            instructions,
+            reminder_enabled
+        ])
+
+    return rows

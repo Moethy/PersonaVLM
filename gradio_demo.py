@@ -5,8 +5,8 @@ import base64
 from pathlib import Path
 import re
 
-from schedule_utils import load_medication_schedule
-
+from schedule_utils import load_medication_schedule, get_schedule_table
+from reminder_utils import check_due_reminders, save_medication_action, snooze_reminder
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -308,6 +308,113 @@ def clean_model_response(text):
     text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
 
     return text.strip()
+
+
+
+def check_reminder_notification():
+    now = datetime.datetime.now().strftime("%H:%M:%S")
+    reminder_message = check_due_reminders()
+
+    print(f"[REMINDER CHECK] {now} -> {reminder_message if reminder_message else 'geen reminder'}")
+
+    if reminder_message:
+        return (
+            gr.update(visible=True),
+            reminder_message,
+            reminder_message
+        )
+
+    return (
+        gr.update(),
+        gr.update(),
+        gr.update()
+    )
+def handle_taken(reminder_message):
+    save_medication_action(
+        reminder_message=reminder_message,
+        status="ingenomen"
+    )
+    return (
+        gr.update(visible=False),
+        "Medicatie gemarkeerd als ingenomen."
+    )
+
+
+def handle_not_taken(reminder_message):
+    save_medication_action(
+        reminder_message=reminder_message,
+        status="niet_ingenomen"
+    )
+
+    snooze_reminder(
+        reminder_message=reminder_message,
+        minutes=10
+    )
+
+    return (
+        gr.update(visible=False),
+        "Ik zal de herinnering over 10 minuten opnieuw tonen."
+    )
+
+
+def handle_unsure(reminder_message, initial_profile, current_time, agent_state):
+    save_medication_action(
+        reminder_message=reminder_message,
+        status="twijfel"
+    )
+
+    if agent_state is None or agent_state.initial_profile_on_creation != initial_profile:
+        agent = MockAgent(
+            initial_profile=initial_profile,
+            model=agent_state.agent.mllm if agent_state else None
+        )
+    else:
+        agent = agent_state
+
+    if not current_time:
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    prompt_instructions = load_prompt_instructions()
+    medication_context = load_medication_context()
+    schedule_context = load_medication_schedule()
+
+    twijfel_query = (
+        f"{prompt_instructions}\n\n"
+        f"Medicatie-informatie:\n{medication_context}\n\n"
+        f"Medicatieschema en huidige planning:\n{schedule_context}\n\n"
+        "Situatie:\n"
+        "De gebruiker heeft bij een medicatieherinnering op 'Ik twijfel' gedrukt.\n\n"
+        f"Herinnering:\n{reminder_message}\n\n"
+        "Geef korte, rustige uitleg over wat de gebruiker nu kan doen. "
+        "Leg uit dat de gebruiker het medicatieschema, de verpakking of bijsluiter kan controleren. "
+        "Geef geen persoonlijke medische beslissing. "
+        "Verwijs bij twijfel naar arts, apotheker of mantelzorger. "
+        "Antwoord volledig in het Nederlands."
+    )
+
+    response, memory_output, reasoning_output, personality_output = agent.send_message(
+        current_time,
+        twijfel_query,
+        "",
+        personality_input=None
+    )
+
+    response = clean_model_response(response)
+
+    personality_image_path = os.path.join(agent.config.DATA_STORAGE_PATH, "personality_evolution.png")
+    if not os.path.exists(personality_image_path):
+        personality_image_path = None
+
+    return (
+        gr.update(visible=False),
+        "Twijfel genoteerd. De medicatie-assistent geeft extra uitleg.",
+        response,
+        memory_output,
+        reasoning_output,
+        personality_output,
+        agent,
+        gr.update(value=personality_image_path, visible=True)
+    )
     
 def process_interaction(
     initial_profile: str,
@@ -364,11 +471,12 @@ def process_interaction(
     schedule_context = load_medication_schedule()
 
     user_query = (
-        f"Medicatie-informatie:\n{medication_context}\n\n"
-        f"Medicatieschema en huidige planning:\n{schedule_context}\n\n"
-        f"Vraag van gebruiker:\n{user_query}\n\n"
-        "Antwoord nu volledig in het Nederlands:"
-    )  
+    f"{prompt_instructions}\n\n"
+    f"Medicatie-informatie:\n{medication_context}\n\n"
+    f"Medicatieschema en huidige planning:\n{schedule_context}\n\n"
+    f"Vraag van gebruiker:\n{user_query}\n\n"
+    "Antwoord nu volledig in het Nederlands:"
+    )
     response, memory_output, reasoning_output, personality_output = agent.send_message(
         current_time, user_query, image_path, personality_input=manual_personality
     )
@@ -381,7 +489,7 @@ def process_interaction(
     personality_image_path = os.path.join(agent.config.DATA_STORAGE_PATH, "personality_evolution.png")
     if not os.path.exists(personality_image_path):
         personality_image_path = None
-    return response, memory_output, reasoning_output, personality_output, agent, gr.update(value=personality_image_path, visible=True)
+    return response, memory_output, reasoning_output, personality_output, agent, gr.update(value=None, visible=False)
 
 
 custom_css = """
@@ -392,113 +500,220 @@ custom_css = """
 .gradio-container {
     font-family: 'Lato', sans-serif !important;
 }
+
+#speech_button,
+#send_button {
+    min-height: 70px !important;
+    height: 70px !important;
+    max-width: 70px !important;
+    padding: 12px !important;
+}
+
+#speech_button img,
+#send_button img {
+    width: 34px !important;
+    height: 34px !important;
+}
 """
 
 with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
-    image_base64_src = get_image_base64_src("./assets/icon.png")
-    gr.Markdown(
-        f"""
-        <div style="text-align: center;">
-            <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
-                <img src="{image_base64_src}" width="100" height="100">
-                <h1 style="font-size: 3em; margin: 0;">PersonaVLM</h1>
-            </div>
-            <p style="font-size: 1.2em; color: grey; margin-top: 8px;">Your Long-term Personalized Multimodal Assistant</p>
-        </div>
-        """
-    )
     gr.Markdown('---')
-        
+
     agent_state = gr.State(value=None)
-    with gr.Row():
-        submit_btn = gr.Button("🚀 Send and Get Reply", variant="primary")
-    with gr.Row():
-        with gr.Column(scale=2):
-            gr.Markdown("## 📥 Inputs")
-            query_input = gr.Textbox(
-                label="User Input", 
-                lines=3,
-                placeholder="Hello, please enter your question here.",
-            )
-            speech_to_text_btn = gr.Button("Spreek in")
+    current_reminder_state = gr.State(value="")
 
-            # In comments want niet nodig
-            image_upload_input = gr.Image(
-                label="Image Upload (Optional)",
-                type="pil", # 使用 PIL Image 对象，Gradio会自动处理临时文件
-                visible=False
-            )
+    with gr.Tab("Assistent"):
+        with gr.Row():
+            with gr.Column(scale=2):
+                gr.Markdown("## Input")
 
+                query_input = gr.Textbox(
+                    label="Uw vraag",
+                    lines=3,
+                    placeholder="Stel hier je vraag",
+                )
 
-            with gr.Row():
-                initial_profile_input = gr.Textbox(
+                with gr.Row(equal_height=True):
+                    speech_to_text_btn = gr.Button(
+                        value="",
+                        icon="assets/microphone.svg",
+                        elem_id="speech_button",
+                        scale=1,
+                        min_width=0
+                    )
+
+                    submit_btn = gr.Button(
+                        value="",
+                        icon="assets/send.svg",
+                        variant="primary",
+                        elem_id="send_button",
+                        scale=1,
+                        min_width=0
+                    )
+
+                image_upload_input = gr.Image(
+                    label="Image Upload (Optional)",
+                    type="pil",
+                    visible=False
+                )
+
+                with gr.Row():
+                    initial_profile_input = gr.Textbox(
                         label="Initial User Profile",
-                        info="Set the user's initial profile in this field. Note that altering this information will reset the Agent's dialogue history.",
                         lines=3,
                         value="name: Henk\ngeslacht: man\ntaal: Nederlands\nvoorkeuren: eenvoudige uitleg over medicatie",
                         scale=1
                     )
-                current_time_input = gr.Textbox(
+
+                    current_time_input = gr.Textbox(
                         label="Timestamp (Optional)",
                         info="Format: YYYY-MM-DD HH:MM. If empty, the current system time will be used.",
                         lines=3,
                         value=None,
-                        scale=1
+                        scale=1,
+                        visible=False
                     )
-            default_personality_str = (
-                "openness: 3.0\n"
-                "conscientiousness: 3.0\n"
-                "extraversion: 3.0\n"
-                "agreeableness: 3.0\n"
-                "neuroticism: 3.0"
-            )
-            personality_input = gr.Textbox(
-                label="Set Personality (Optional)",
-                info="Override the user's personality for this response.",
-                lines=5,
-                value=default_personality_str,
-                interactive=True,
-                visible=False
-            )
 
-        with gr.Column(scale=2):
-            gr.Markdown("## 📤 Outputs")
-            model_response_output = gr.Textbox(
-                label="Personalized Response", 
-                lines=5,
-                interactive=False
-            )
-            gr.Markdown("#### ✨✨✨ R3-Capabilities")
-            memory_output = gr.Textbox(
-                label="Remembering",
-                lines=3, 
-                interactive=False, 
-                scale=1
-            )
-            reasoning_output = gr.Textbox(
-                label="Reasoning", 
-                lines=3, 
-                max_lines=3,
-                interactive=False, 
-                scale=1,
-            )
-            personality_output = gr.Textbox(
-                label="Alignment",
-                lines=3,
-                interactive=False, 
-                scale=1,
-                visible=False
-            )
-            personality_evolution_output = gr.Image(
-                label="Personality Evolution",
-                visible=False,
-            )
+                default_personality_str = (
+                    "openness: 3.0\n"
+                    "conscientiousness: 3.0\n"
+                    "extraversion: 3.0\n"
+                    "agreeableness: 3.0\n"
+                    "neuroticism: 3.0"
+                )
+
+                personality_input = gr.Textbox(
+                    label="Set Personality (Optional)",
+                    info="Override the user's personality for this response.",
+                    lines=5,
+                    value=default_personality_str,
+                    interactive=True,
+                    visible=False
+                )
+
+            with gr.Column(scale=2):
+                gr.Markdown("## Antwoord")
+
+                with gr.Group(visible=False) as reminder_popup:
+                    reminder_output = gr.Textbox(
+                        label="Medicatieherinnering",
+                        lines=3,
+                        interactive=False
+                    )
+
+                    with gr.Row():
+                        taken_btn = gr.Button("Ingenomen", variant="primary")
+                        not_taken_btn = gr.Button("Niet ingenomen")
+                        unsure_btn = gr.Button("Ik twijfel")
+
+                action_status_output = gr.Textbox(
+                    label="Status",
+                    lines=1,
+                    interactive=False,
+                    visible=True
+                )
+
+                model_response_output = gr.Textbox(
+                    label="Antwoord van de medicatie-assistent",
+                    lines=5,
+                    interactive=False
+                )
+
+                memory_output = gr.Textbox(
+                    label="Remembering",
+                    lines=3,
+                    interactive=False,
+                    visible=False
+                )
+
+                reasoning_output = gr.Textbox(
+                    label="Reasoning",
+                    lines=3,
+                    max_lines=3,
+                    interactive=False,
+                    visible=False
+                )
+
+                personality_output = gr.Textbox(
+                    label="Alignment",
+                    lines=3,
+                    interactive=False,
+                    visible=False
+                )
+
+                personality_evolution_output = gr.Image(
+                    label="Personality Evolution",
+                    visible=False,
+                )
+
+    with gr.Tab("Medicatieschema"):
+        gr.Markdown("## Medicatieschema")
+
+        schedule_table = gr.Dataframe(
+            headers=[
+                "Medicatie",
+                "Dosering",
+                "Innamemomenten",
+                "Instructie",
+                "Herinnering actief"
+            ],
+            value=get_schedule_table(),
+            interactive=False
+        )
+
+        refresh_schedule_btn = gr.Button("Schema verversen")
+
+        refresh_schedule_btn.click(
+            fn=get_schedule_table,
+            inputs=[],
+            outputs=schedule_table
+        )
 
     speech_to_text_btn.click(
-    fn=record_and_transcribe,
-    inputs=[],
-    outputs=query_input
-)
+        fn=record_and_transcribe,
+        inputs=[],
+        outputs=query_input
+    )
+
+    reminder_timer = gr.Timer(value=30, active=True)
+
+    reminder_timer.tick(
+        fn=check_reminder_notification,
+        inputs=[],
+        outputs=[reminder_popup, reminder_output, current_reminder_state]
+    )
+
+    taken_btn.click(
+        fn=handle_taken,
+        inputs=[current_reminder_state],
+        outputs=[reminder_popup, action_status_output]
+    )
+
+    not_taken_btn.click(
+        fn=handle_not_taken,
+        inputs=[current_reminder_state],
+        outputs=[reminder_popup, action_status_output]
+    )
+
+    unsure_btn.click(
+        fn=handle_unsure,
+        inputs=[
+            current_reminder_state,
+            initial_profile_input,
+            current_time_input,
+            agent_state
+        ],
+        outputs=[
+            reminder_popup,
+            action_status_output,
+            model_response_output,
+            memory_output,
+            reasoning_output,
+            personality_output,
+            agent_state,
+            personality_evolution_output
+        ]
+    )
 
     submit_btn.click(
         fn=process_interaction,
@@ -521,12 +736,11 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
     )
 
 if __name__ == "__main__":
-    APP_USER = "admin" 
+    APP_USER = "admin"
     APP_PASSWORD = "personavlmdemo"
-    
+
     demo.launch(
         server_name="0.0.0.0",
         share=True,
-        server_port=7861, 
-        
+        server_port=7861,
     )
