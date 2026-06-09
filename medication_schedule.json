@@ -3,9 +3,31 @@
     {
       "name": "Paracetamol",
       "dose": "1 tablet van 500 mg",
-      "times": ["12:45", "14:00", "20:00"],
+      "times": ["08:00", "14:00", "20:00"],
       "instructions": "Neem in met water. Houd minimaal 4 uur tussen innames.",
       "reminder_enabled": true
+    },
+    {
+      "name": "Vitamine D",
+      "dose": "1 tablet",
+      "times": ["09:00"],
+      "instructions": "Neem bij voorkeur in tijdens of na het ontbijt.",
+      "reminder_enabled": true
+    },
+   
+    {
+      "name": "Antibioticakuur",
+      "dose": "1 capsule",
+      "times": ["08:00", "16:00", "22:00"],
+      "instructions": "Maak de kuur af zoals voorgeschreven. Neem contact op met arts of apotheker bij twijfel.",
+      "reminder_enabled": true
+    },
+    {
+      "name": "Ibuprofen",
+      "dose": "1 tablet van 200 mg",
+      "times": ["12:45"],
+      "instructions": "Neem in tijdens of na het eten. Gebruik dit middel niet zonder overleg bij maagklachten, nierproblemen of bloedverdunners.",
+      "reminder_enabled": false
     }
   ]
 }

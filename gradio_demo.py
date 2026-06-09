@@ -24,9 +24,13 @@ import pyaudio
 from PersonaVLM import PersonaVLMAgent
 from inference import UserConfig
 
-STT_DURATION = 10
-STT_MIC_DEVICE = None
+
 STT_AUDIO_FILE = "stt_input.wav"
+STT_MIC_DEVICE = None
+STT_MAX_DURATION = 15          # maximale opnametijd
+STT_CHUNK_DURATION = 0.2       # audio per stukje
+STT_SILENCE_DURATION = 1.0     # stop na 1 sec stilte
+STT_SILENCE_THRESHOLD = 600    # gevoeligheid microfoon
 
 if os.name == "nt":  # Windows
     PIPER_EXE = r"piper\piper.exe"
@@ -207,14 +211,46 @@ def record_and_transcribe():
     device_info = sd.query_devices(STT_MIC_DEVICE, "input")
     sample_rate = int(device_info["default_samplerate"])
 
-    audio = sd.rec(
-        int(STT_DURATION * sample_rate),
-        samplerate=sample_rate,
-        channels=1,
-        dtype="int16",
-        device=STT_MIC_DEVICE
-    )
-    sd.wait()
+    chunk_samples = int(STT_CHUNK_DURATION * sample_rate)
+    max_chunks = int(STT_MAX_DURATION / STT_CHUNK_DURATION)
+    silence_chunks_needed = int(STT_SILENCE_DURATION / STT_CHUNK_DURATION)
+
+    frames = []
+    has_started_speaking = False
+    silent_chunks = 0
+
+    print("Opname gestart. Spreek nu...")
+
+    for _ in range(max_chunks):
+        chunk = sd.rec(
+            chunk_samples,
+            samplerate=sample_rate,
+            channels=1,
+            dtype="int16",
+            device=STT_MIC_DEVICE
+        )
+        sd.wait()
+
+        volume = np.sqrt(np.mean(chunk.astype(np.float32) ** 2))
+        print(f"Volume: {volume:.2f}")
+
+        if volume > STT_SILENCE_THRESHOLD:
+            has_started_speaking = True
+            silent_chunks = 0
+            frames.append(chunk)
+        else:
+            if has_started_speaking:
+                silent_chunks += 1
+                frames.append(chunk)
+
+                if silent_chunks >= silence_chunks_needed:
+                    print("Stilte gedetecteerd. Opname gestopt.")
+                    break
+
+    if not frames:
+        return ""
+
+    audio = np.concatenate(frames, axis=0)
     write(STT_AUDIO_FILE, sample_rate, audio)
 
     segments, info = stt_model.transcribe(STT_AUDIO_FILE, language="nl")
