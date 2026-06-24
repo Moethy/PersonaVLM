@@ -1,0 +1,463 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700&display=swap');
+
+* {
+    font-family: 'Lato', sans-serif !important;
+}
+
+.gradio-container {
+    background-color: #FAF7F0 !important;
+    color: #1F2937 !important;
+}
+
+footer,
+.gradio-container .footer,
+button[aria-label="Settings"],
+#settings {
+    display: none !important;
+}
+
+.gradio-container .block {
+    background-color: #FFFFFF !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+.gradio-container h1,
+.gradio-container h2,
+.gradio-container h3 {
+    color: #1F2937 !important;
+    font-weight: 600 !important;
+}
+
+.gradio-container .block-label,
+.gradio-container [data-testid="block-label"],
+.gradio-container .label-wrap,
+.gradio-container .label-wrap span {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font-size: 28px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    animation: none !important;
+    filter: none !important;
+}
+
+.gradio-container textarea,
+.gradio-container input[type="text"] {
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
+    border: 2px solid #D1D5DB !important;
+    border-radius: 10px !important;
+    font-size: 22px !important;
+}
+
+.gradio-container textarea::placeholder,
+.gradio-container input::placeholder {
+    color: #4B5563 !important;
+    opacity: 1 !important;
+}
+
+.gradio-container button {
+    border-radius: 12px !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+}
+
+.gradio-container *,
+.gradio-container *::before,
+.gradio-container *::after {
+    box-shadow: none !important;
+    outline: none !important;
+    outline-color: transparent !important;
+}
+
+.gradio-container *:focus,
+.gradio-container *:focus-visible,
+.gradio-container *:focus-within {
+    box-shadow: none !important;
+    outline: none !important;
+    outline-color: transparent !important;
+}
+
+.gradio-container textarea:focus,
+.gradio-container input[type="text"]:focus {
+    border: 2px solid #0B3A5B !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* ========================= */
+/* Assistentpagina */
+/* ========================= */
+
+#assistant_center_column {
+    max-width: 850px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+#assistant_center_column > div {
+    width: 100% !important;
+}
+
+#model_response_box textarea {
+    font-size: 24px !important;
+    line-height: 1.55 !important;
+    min-height: 420px !important;
+}
+
+#query_input_box textarea {
+    font-size: 22px !important;
+    min-height: 70px !important;
+}
+
+#query_input_box textarea:disabled,
+#query_input_box textarea[disabled],
+#query_input_box [disabled] {
+    background-color: #E5E7EB !important;
+    color: #6B7280 !important;
+    border-color: #CBD5E1 !important;
+    cursor: not-allowed !important;
+}
+
+#query_input_box textarea:disabled::placeholder,
+#query_input_box textarea[disabled]::placeholder {
+    color: #9CA3AF !important;
+}
+
+#input_button_row {
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
+#input_button_row > div {
+    flex-grow: 0 !important;
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+}
+
+/* ========================= */
+/* Blauwe actieknoppen */
+/* Home + assistent + twijfel */
+/* ========================= */
+
+#home_question_button,
+#home_question_button button,
+#home_schedule_button,
+#home_schedule_button button,
+#speech_button,
+#speech_button button,
+#send_button,
+#send_button button,
+#speech_button_listening,
+#speech_button_listening button,
+#unsure_button,
+#unsure_button button {
+    background: #0B3A5B !important;
+    background-color: #0B3A5B !important;
+    background-image: none !important;
+    color: #FFFFFF !important;
+    border: 2px solid #0B3A5B !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease !important;
+}
+
+#home_question_button:hover,
+#home_question_button:hover button,
+#home_question_button button:hover,
+#home_schedule_button:hover,
+#home_schedule_button:hover button,
+#home_schedule_button button:hover,
+#speech_button:hover,
+#speech_button:hover button,
+#speech_button button:hover,
+#send_button:hover,
+#send_button:hover button,
+#send_button button:hover,
+#speech_button_listening:hover,
+#speech_button_listening:hover button,
+#speech_button_listening button:hover,
+#unsure_button:hover,
+#unsure_button:hover button,
+#unsure_button button:hover {
+    background: #176399 !important;
+    background-color: #176399 !important;
+    border-color: #176399 !important;
+}
+
+#home_question_button:active button,
+#home_question_button button:active,
+#home_schedule_button:active button,
+#home_schedule_button button:active,
+#speech_button:active button,
+#speech_button button:active,
+#send_button:active button,
+#send_button button:active,
+#speech_button_listening:active button,
+#speech_button_listening button:active,
+#unsure_button:active button,
+#unsure_button button:active {
+    transform: scale(0.99) !important;
+}
+
+#speech_button,
+#speech_button button,
+#send_button,
+#send_button button,
+#speech_button_listening,
+#speech_button_listening button {
+    width: 80px !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    padding: 12px !important;
+}
+
+#speech_button img,
+#speech_button_listening img,
+#send_button img {
+    width: 34px !important;
+    height: 34px !important;
+    filter: brightness(0) invert(1) !important;
+}
+
+#speech_button_listening button {
+    animation: listening_button_pulse 1s infinite alternate !important;
+}
+
+@keyframes listening_button_pulse {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.03);
+    }
+}
+
+/* ========================= */
+/* Reminderknoppen */
+/* ========================= */
+
+#taken_button,
+#taken_button button {
+    background: #065F46 !important;
+    background-color: #065F46 !important;
+    background-image: none !important;
+    color: #FFFFFF !important;
+    border: 2px solid #065F46 !important;
+    border-radius: 12px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease !important;
+}
+
+#taken_button:hover,
+#taken_button:hover button,
+#taken_button button:hover {
+    background: #047857 !important;
+    background-color: #047857 !important;
+    border-color: #047857 !important;
+}
+
+#taken_button:active button,
+#taken_button button:active {
+    transform: scale(0.99) !important;
+}
+
+#not_taken_button,
+#not_taken_button button {
+    background: #B91C1C !important;
+    background-color: #B91C1C !important;
+    background-image: none !important;
+    color: #FFFFFF !important;
+    border: 2px solid #B91C1C !important;
+    border-radius: 12px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease !important;
+}
+
+#not_taken_button:hover,
+#not_taken_button:hover button,
+#not_taken_button button:hover {
+    background: #DC2626 !important;
+    background-color: #DC2626 !important;
+    border-color: #DC2626 !important;
+}
+
+#not_taken_button:active button,
+#not_taken_button button:active {
+    transform: scale(0.99) !important;
+}
+
+/* ========================= */
+/* Popupmeldingen */
+/* ========================= */
+
+.center_popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 320px;
+    max-width: 520px;
+    padding: 22px 30px;
+    border-radius: 16px;
+    color: #FFFFFF !important;
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+    z-index: 99999;
+    pointer-events: none;
+    animation: popup_fade_out 3.2s ease forwards;
+}
+
+.popup_error {
+    background-color: #B91C1C !important;
+}
+
+.popup_success {
+    background-color: #065F46 !important;
+}
+
+.popup_info {
+    background-color: #0B3A5B !important;
+}
+
+@keyframes popup_fade_out {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+    12% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    70% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+}
+
+#popup_output,
+#popup_output > div,
+#popup_output .block {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+}
+
+/* ========================= */
+/* Homepagina */
+/* ========================= */
+
+#home_center_column {
+    max-width: 850px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-top: 35px !important;
+}
+
+#home_center_column > div {
+    width: 100% !important;
+}
+
+.home-header-wrapper {
+    margin-bottom: 18px;
+}
+
+.home-title {
+    font-size: 40px;
+    line-height: 1.1;
+    font-weight: 700;
+    color: #3F3F46;
+    margin-bottom: 2px;
+}
+
+.home-subtitle {
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #3F3F46;
+}
+
+.home-medication-card {
+    background: #FFFFFF;
+    border: 2px solid #3F3F46;
+    padding: 22px 28px 24px 28px;
+    margin-bottom: 20px;
+}
+
+.home-time {
+    font-size: 52px;
+    font-weight: 700;
+    color: #3F3F46;
+    line-height: 1.05;
+    margin-left: 150px;
+}
+
+.home-med-name {
+    font-size: 29px;
+    font-weight: 700;
+    color: #3F3F46;
+    line-height: 1.1;
+    margin-left: 150px;
+}
+
+.home-dosage {
+    font-size: 29px;
+    font-weight: 700;
+    color: #3F3F46;
+    line-height: 1.1;
+    margin-left: 150px;
+}
+
+.home-divider {
+    height: 7px;
+    background: #1F2937;
+    margin: 32px 26px 14px 18px;
+}
+
+.home-status-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #3F3F46;
+    margin-left: 42px;
+}
+
+.home-radio-circle {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #3F3F46;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+#home_button_row {
+    gap: 10px !important;
+}
+
+#home_button_row > div {
+    min-width: 0 !important;
+}
+
+#home_question_button button,
+#home_schedule_button button {
+    height: 125px !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    justify-content: center !important;
+}
