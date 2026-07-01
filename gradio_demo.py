@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import wave
+import datetime
 from pathlib import Path
 
 import gradio as gr
@@ -28,12 +29,14 @@ from app_utils.context_utils import (
     build_agent_prompt,
 )
 
+from app_utils.reminder_popup_utils import build_reminder_popup_html
+
 
 from app_utils.schedule_utils import load_medication_schedule, get_schedule_table
 
-# =========================
+
 # Configuratie
-# =========================
+
 
 STT_AUDIO_FILE = "stt_input.wav"
 STT_MIC_DEVICE = None
@@ -323,9 +326,8 @@ def speak_response(text):
 
 
 
-# =========================
+
 # Popupmeldingen
-# =========================
 
 def create_popup(message, popup_type="error"):
     if not message:
@@ -340,9 +342,8 @@ def create_popup(message, popup_type="error"):
     return f'<div class="center_popup popup_{popup_type}">{safe_message}</div>'
 
 
-# =========================
+
 # Reminderlogica
-# =========================
 
 def check_reminders():
     now = datetime.datetime.now().strftime("%H:%M:%S")
@@ -353,7 +354,7 @@ def check_reminders():
     if reminder_message:
         return (
             gr.update(visible=True),
-            reminder_message,
+            build_reminder_popup_html(reminder_message),
             reminder_message
         )
 
@@ -362,6 +363,16 @@ def check_reminders():
         gr.update(),
         gr.update()
     )
+
+
+def test_reminder_popup():
+    test_message = "08:00 Paracetamol 500mg. Neem 1 tablet met water."
+
+    return (
+        gr.update(visible=True),
+        build_reminder_popup_html(test_message),
+        test_message
+    )    
 
 
 def mark_reminder_taken(reminder_message):
@@ -515,6 +526,33 @@ with gr.Blocks(theme=gr.themes.Soft(), css=stylesheet) as demo:
     agent_state = gr.State(value=None)
     current_reminder_state = gr.State(value="")
 
+
+    with gr.Group(visible=False, elem_id="reminder_modal_overlay") as reminder_popup:
+        with gr.Column(elem_id="reminder_modal_card"):
+            reminder_output = gr.HTML(value="")
+                     
+
+            with gr.Row(elem_id="reminder_modal_button_row"):
+                taken_btn = gr.Button(
+                    "Ingenomen",
+                    elem_id="taken_button"
+                )
+
+                not_taken_btn = gr.Button(
+                    "Niet ingenomen",
+                    elem_id="not_taken_button"
+                )
+
+                unsure_btn = gr.Button(
+                    "Ik twijfel",
+                    elem_id="unsure_button"
+                )
+
+    action_status_output = gr.HTML(
+        value="",
+        elem_id="popup_output"
+    )
+
     with gr.Tabs(selected="home_tab") as main_tabs:
 
         with gr.Tab("Home", id="home_tab"):
@@ -529,46 +567,23 @@ with gr.Blocks(theme=gr.themes.Soft(), css=stylesheet) as demo:
 
                 with gr.Row(equal_height=True, elem_id="home_button_row"):
                     home_question_btn = gr.Button(
-                        "❔ Stel een vraag",
+                        "Stel een vraag",
                         elem_id="home_question_button"
                     )
 
                     home_schedule_btn = gr.Button(
-                        "📋 Medicatieschema",
+                        "Medicatieschema",
                         elem_id="home_schedule_button"
                     )
+
+                test_reminder_btn = gr.Button("Test reminder popup")
 
         with gr.Tab("Assistent", id="assistant_tab"):
             with gr.Column(elem_id="assistant_center_column"):
 
-                with gr.Group(visible=False) as reminder_popup:
-                    reminder_output = gr.Textbox(
-                        label="Medicatieherinnering",
-                        lines=3,
-                        interactive=False
-                    )
+                
 
-                    with gr.Row():
-                        taken_btn = gr.Button(
-                            "Ingenomen",
-                            variant="primary",
-                            elem_id="taken_button"
-                        )
-
-                        not_taken_btn = gr.Button(
-                            "Niet ingenomen",
-                            elem_id="not_taken_button"
-                        )
-
-                        unsure_btn = gr.Button(
-                            "Ik twijfel",
-                            elem_id="unsure_button"
-                        )
-
-                action_status_output = gr.HTML(
-                    value="",
-                    elem_id="popup_output"
-                )
+                
 
                 model_response_output = gr.Textbox(
                     label="",
@@ -732,6 +747,16 @@ with gr.Blocks(theme=gr.themes.Soft(), css=stylesheet) as demo:
         ]
     )
 
+    test_reminder_btn.click(
+        fn=test_reminder_popup,
+        inputs=[],
+        outputs=[
+            reminder_popup,
+            reminder_output,
+            current_reminder_state
+        ]
+    )
+
     voice_event.then(
         fn=send_voice_message_if_available,
         inputs=[
@@ -848,3 +873,5 @@ if __name__ == "__main__":
         share=True,
         server_port=7861,
     )
+
+

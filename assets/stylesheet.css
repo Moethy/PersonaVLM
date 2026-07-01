@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700&display=swap');
 
+/* ========================= */
+/* Basis */
+/* ========================= */
+
 * {
     font-family: 'Lato', sans-serif !important;
 }
@@ -60,30 +64,6 @@ button[aria-label="Settings"],
     opacity: 1 !important;
 }
 
-.gradio-container button {
-    border-radius: 12px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-}
-
-.gradio-container *,
-.gradio-container *::before,
-.gradio-container *::after {
-    box-shadow: none !important;
-    outline: none !important;
-    outline-color: transparent !important;
-}
-
-.gradio-container *:focus,
-.gradio-container *:focus-visible,
-.gradio-container *:focus-within {
-    box-shadow: none !important;
-    outline: none !important;
-    outline-color: transparent !important;
-}
-
 .gradio-container textarea:focus,
 .gradio-container input[type="text"]:focus {
     border: 2px solid #0B3A5B !important;
@@ -91,9 +71,124 @@ button[aria-label="Settings"],
     outline: none !important;
 }
 
+.gradio-container *,
+.gradio-container *::before,
+.gradio-container *::after {
+    outline: none !important;
+    outline-color: transparent !important;
+}
+
+.gradio-container *:focus,
+.gradio-container *:focus-visible,
+.gradio-container *:focus-within {
+    outline: none !important;
+    outline-color: transparent !important;
+}
+
 /* ========================= */
+/* Algemene knoppen */
+/* ========================= */
+
+.gradio-container button {
+    border-radius: 12px !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+
+/* Blauwe actieknoppen */
+#home_question_button,
+#home_question_button button,
+#home_schedule_button,
+#home_schedule_button button,
+#speech_button,
+#speech_button button,
+#send_button,
+#send_button button,
+#speech_button_listening,
+#speech_button_listening button,
+#unsure_button,
+#unsure_button button {
+    background: #0B3A5B !important;
+    background-color: #0B3A5B !important;
+    color: #FFFFFF !important;
+    border: 2px solid #0B3A5B !important;
+    border-radius: 12px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease !important;
+}
+
+#home_question_button:hover,
+#home_question_button:hover button,
+#home_question_button button:hover,
+#home_schedule_button:hover,
+#home_schedule_button:hover button,
+#home_schedule_button button:hover,
+#speech_button:hover,
+#speech_button:hover button,
+#speech_button button:hover,
+#send_button:hover,
+#send_button:hover button,
+#send_button button:hover,
+#speech_button_listening:hover,
+#speech_button_listening:hover button,
+#speech_button_listening button:hover,
+#unsure_button:hover,
+#unsure_button:hover button,
+#unsure_button button:hover {
+    background: #176399 !important;
+    background-color: #176399 !important;
+    border-color: #176399 !important;
+}
+
+/* Groene knop: ingenomen */
+#taken_button,
+#taken_button button {
+    background: #065F46 !important;
+    background-color: #065F46 !important;
+    background-image: none !important;
+    color: #FFFFFF !important;
+    border: 2px solid #065F46 !important;
+    border-radius: 12px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease !important;
+}
+
+#taken_button:hover,
+#taken_button:hover button,
+#taken_button button:hover {
+    background: #047857 !important;
+    background-color: #047857 !important;
+    border-color: #047857 !important;
+}
+
+/* Rode knop: niet ingenomen */
+#not_taken_button,
+#not_taken_button button {
+    background: #B91C1C !important;
+    background-color: #B91C1C !important;
+    background-image: none !important;
+    color: #FFFFFF !important;
+    border: 2px solid #B91C1C !important;
+    border-radius: 12px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease !important;
+}
+
+#not_taken_button:hover,
+#not_taken_button:hover button,
+#not_taken_button button:hover {
+    background: #DC2626 !important;
+    background-color: #DC2626 !important;
+    border-color: #DC2626 !important;
+}
+
+ /* BUTTON SHADOW */
+.gradio-container button {
+    box-shadow:
+        4px 4px 0px rgba(0, 0, 0, 0.30) !important;
+
+}
+
+
 /* Assistentpagina */
-/* ========================= */
 
 #assistant_center_column {
     max-width: 850px !important;
@@ -142,71 +237,6 @@ button[aria-label="Settings"],
     max-width: 80px !important;
 }
 
-/* ========================= */
-/* Blauwe actieknoppen */
-/* Home + assistent + twijfel */
-/* ========================= */
-
-#home_question_button,
-#home_question_button button,
-#home_schedule_button,
-#home_schedule_button button,
-#speech_button,
-#speech_button button,
-#send_button,
-#send_button button,
-#speech_button_listening,
-#speech_button_listening button,
-#unsure_button,
-#unsure_button button {
-    background: #0B3A5B !important;
-    background-color: #0B3A5B !important;
-    background-image: none !important;
-    color: #FFFFFF !important;
-    border: 2px solid #0B3A5B !important;
-    border-radius: 12px !important;
-    box-shadow: none !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease !important;
-}
-
-#home_question_button:hover,
-#home_question_button:hover button,
-#home_question_button button:hover,
-#home_schedule_button:hover,
-#home_schedule_button:hover button,
-#home_schedule_button button:hover,
-#speech_button:hover,
-#speech_button:hover button,
-#speech_button button:hover,
-#send_button:hover,
-#send_button:hover button,
-#send_button button:hover,
-#speech_button_listening:hover,
-#speech_button_listening:hover button,
-#speech_button_listening button:hover,
-#unsure_button:hover,
-#unsure_button:hover button,
-#unsure_button button:hover {
-    background: #176399 !important;
-    background-color: #176399 !important;
-    border-color: #176399 !important;
-}
-
-#home_question_button:active button,
-#home_question_button button:active,
-#home_schedule_button:active button,
-#home_schedule_button button:active,
-#speech_button:active button,
-#speech_button button:active,
-#send_button:active button,
-#send_button button:active,
-#speech_button_listening:active button,
-#speech_button_listening button:active,
-#unsure_button:active button,
-#unsure_button button:active {
-    transform: scale(0.99) !important;
-}
-
 #speech_button,
 #speech_button button,
 #send_button,
@@ -235,61 +265,10 @@ button[aria-label="Settings"],
     from {
         transform: scale(1);
     }
+
     to {
         transform: scale(1.03);
     }
-}
-
-/* ========================= */
-/* Reminderknoppen */
-/* ========================= */
-
-#taken_button,
-#taken_button button {
-    background: #065F46 !important;
-    background-color: #065F46 !important;
-    background-image: none !important;
-    color: #FFFFFF !important;
-    border: 2px solid #065F46 !important;
-    border-radius: 12px !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease !important;
-}
-
-#taken_button:hover,
-#taken_button:hover button,
-#taken_button button:hover {
-    background: #047857 !important;
-    background-color: #047857 !important;
-    border-color: #047857 !important;
-}
-
-#taken_button:active button,
-#taken_button button:active {
-    transform: scale(0.99) !important;
-}
-
-#not_taken_button,
-#not_taken_button button {
-    background: #B91C1C !important;
-    background-color: #B91C1C !important;
-    background-image: none !important;
-    color: #FFFFFF !important;
-    border: 2px solid #B91C1C !important;
-    border-radius: 12px !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease !important;
-}
-
-#not_taken_button:hover,
-#not_taken_button:hover button,
-#not_taken_button button:hover {
-    background: #DC2626 !important;
-    background-color: #DC2626 !important;
-    border-color: #DC2626 !important;
-}
-
-#not_taken_button:active button,
-#not_taken_button button:active {
-    transform: scale(0.99) !important;
 }
 
 /* ========================= */
@@ -331,14 +310,17 @@ button[aria-label="Settings"],
         opacity: 0;
         transform: translate(-50%, -45%);
     }
+
     12% {
         opacity: 1;
         transform: translate(-50%, -50%);
     }
+
     70% {
         opacity: 1;
         transform: translate(-50%, -50%);
     }
+
     100% {
         opacity: 0;
         transform: translate(-50%, -55%);
@@ -433,17 +415,12 @@ button[aria-label="Settings"],
     gap: 14px;
     font-size: 28px;
     font-weight: 700;
-    color: #3F3F46;
+    color: #000000 !important;
     margin-left: 42px;
 }
 
-.home-radio-circle {
-    width: 24px;
-    height: 24px;
-    border: 3px solid #3F3F46;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
+.home-status-row span {
+    color: #000000 !important;
 }
 
 #home_button_row {
@@ -460,4 +437,210 @@ button[aria-label="Settings"],
     font-size: 28px !important;
     font-weight: 700 !important;
     justify-content: center !important;
+}
+
+
+/* Reminder modal */
+
+#reminder_modal_overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    background: rgba(0, 0, 0, 0.28) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}
+
+#reminder_modal_overlay > div {
+    width: 100% !important;
+    max-width: 720px !important;
+}
+
+#reminder_modal_card {
+    position: relative !important;
+    background: #FFFFFF !important;
+    border: 2px solid #3F3F46 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+#reminder_modal_card > div {
+    padding: 0 !important;
+}
+
+.reminder-card-content {
+    position: relative;
+    background: #FFFFFF;
+    color: #000000 !important;
+}
+
+.reminder-time-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 110px;
+    padding: 4px 14px;
+    border-left: 2px solid #3F3F46;
+    border-bottom: 2px solid #3F3F46;
+    text-align: center;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 500;
+    background: #FFFFFF;
+}
+
+.reminder-main-section {
+    padding: 28px 52px 26px 175px;
+    border-bottom: 2px solid #3F3F46;
+}
+
+.reminder-small-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.reminder-medication-name {
+    font-size: 50px;
+    line-height: 1.1;
+    font-weight: 700;
+}
+
+.reminder-dosage {
+    font-size: 50px;
+    line-height: 1.1;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.reminder-instruction {
+    font-size: 28px;
+    margin-top: 16px;
+}
+
+.reminder-question-section {
+    padding: 14px 24px 8px 24px;
+    text-align: center;
+}
+
+.reminder-question {
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.reminder-raw-message {
+    margin: 0 28px 18px 28px;
+    font-size: 16px;
+    color: #000000 !important;
+}
+
+.reminder-raw-message summary {
+    cursor: pointer;
+}
+
+#reminder_modal_button_row {
+    padding: 10px 26px 8px 26px !important;
+    gap: 28px !important;
+}
+
+#reminder_modal_bottom_row {
+    padding: 6px 26px 24px 26px !important;
+    justify-content: center !important;
+}
+
+#reminder_modal_button_row > div {
+    min-width: 0 !important;
+}
+
+#reminder_modal_bottom_row > div {
+    max-width: 310px !important;
+}
+
+/* Wireframe-achtige reminderknoppen */
+#reminder_modal_card #taken_button button,
+#reminder_modal_card #not_taken_button button,
+#reminder_modal_card #unsure_button button {
+    min-height: 72px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    color: #3F3F46 !important;
+    border: 2px solid #3F3F46 !important;
+    border-radius: 0 !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.22) !important;
+    transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease !important;
+}
+
+#reminder_modal_card #taken_button button:hover,
+#reminder_modal_card #not_taken_button button:hover,
+#reminder_modal_card #unsure_button button:hover {
+    background: #F3F4F6 !important;
+    background-color: #F3F4F6 !important;
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25) !important;
+}
+
+#reminder_modal_card #taken_button button:active,
+#reminder_modal_card #not_taken_button button:active,
+#reminder_modal_card #unsure_button button:active {
+    transform: translateY(3px) !important;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Tab-knoppen */
+
+
+.gradio-container button[role="tab"],
+.gradio-container .tab-nav button {
+    background: #E8E1D4 !important;
+    background-color: #E8E1D4 !important;
+    color: #1F2937 !important;
+    border: 2px solid #C9BFAF !important;
+    border-radius: 10px 10px 0 0 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    padding: 10px 18px !important;
+    box-shadow: 2px 3px 7px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Hover op tab */
+.gradio-container button[role="tab"]:hover,
+.gradio-container .tab-nav button:hover {
+    background: #D8CDBB !important;
+    background-color: #D8CDBB !important;
+    color: #000000 !important;
+}
+
+/* Actieve tab */
+.gradio-container button[role="tab"][aria-selected="true"],
+.gradio-container .tab-nav button.selected {
+    background: #0B3A5B !important;
+    background-color: #0B3A5B !important;
+    color: #FFFFFF !important;
+    border-color: #0B3A5B !important;
+}
+
+
+/* ========================= */
+/* Reminder popup tekst zwart */
+/* ========================= */
+
+#reminder_modal_card,
+#reminder_modal_card .reminder-card-content,
+#reminder_modal_card .reminder-time-badge,
+#reminder_modal_card .reminder-small-title,
+#reminder_modal_card .reminder-medication-name,
+#reminder_modal_card .reminder-dosage,
+#reminder_modal_card .reminder-instruction,
+#reminder_modal_card .reminder-question,
+#reminder_modal_card .reminder-raw-message,
+#reminder_modal_card .reminder-raw-message summary,
+#reminder_modal_card .reminder-raw-message p {
+    color: #000000 !important;
 }

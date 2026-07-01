@@ -227,3 +227,7 @@ output/
 requirements_local.txt
 requirements_windows.txt
 gradio_demo_backup.py
+medication_log.json
+reminder_state.json
+snoozed_reminders.json
+piper_linux_x86_64.tar.gz

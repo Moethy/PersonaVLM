@@ -44,6 +44,7 @@ def get_home_header(initial_profile: str):
     """
 
 
+
 def get_row_value(row, index, key):
     if isinstance(row, dict):
         return row.get(key, "")
@@ -169,7 +170,6 @@ def get_home_medication_card():
         <div class="home-divider"></div>
 
         <div class="home-status-row">
-            <span class="home-radio-circle"></span>
             <span>Nog niet ingenomen</span>
         </div>
     </div>
